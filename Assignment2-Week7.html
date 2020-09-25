@@ -1,0 +1,260 @@
+<!doctype html>
+<!-- AUTHOR: FAKUNLE MOBOLAJI JOHNSON-->
+<html>
+<head>
+	<meta charset="utf-8">
+	<!-- CSS-->
+	<link rel="stylesheet" href="styles.css">	
+
+	<title>Mobolaji Johnson -- JS Assignment 2 -- Week 7</title>
+</head>
+
+<body>
+	<div class="infobar">TIIDELab Fellows</div>
+		<div class="selectBar">
+		  <!-- Select Display type-->
+		  <table align="center"><tr><td>
+		  <label><input type="radio" name="display" id="display_0" checked onClick="displayType('all')">All Fellows</label>
+		  <label><input type="radio" name="display" id="display_1" onClick="displayType('member')">Members Only</label>
+		  <label><input type="radio" name="display" id="display_2" onClick="displayType('teamLead');">Team Leads</label>
+		  </td></tr></table>
+		</div>
+		<!-- Display add button -->
+	<button class="open-button" onclick="openForm('Add');">+ Add New Fellow</button>
+		<!-- Display form -->
+		<div id="form-content"></div>
+		<!-- Display fellows -->
+		<div id="content"></div> 
+
+	<!--Javascript Code-->
+	<script>
+		//gets the data stored in the local storage
+		fellows = JSON.parse(localStorage.getItem("fellows"));
+
+		//to check if local storage contains data
+		if(fellows == null) {
+			//if local storage is empty, assign data to local storage
+			
+			fellows = [ 
+				//array that contains initial info about fellows
+					{
+						"img" : "1.png",
+						"fullName" : "Akan Asanga",
+						"mail" : "Akan.asanga@tiidelab.com",
+						"phone" : "09048940949",
+						"status" : "Member"
+					},
+					{
+						"img" : "2.png",
+						"fullName" : "Jane Andeh",
+						"mail" : "Jane.andeh@Tiidelab.com",
+						"phone" : "07048478364",
+						"status" : "Member"
+					},
+					{
+						"img" : "3.png",
+						"fullName" : "Ayoade Rasheed",
+						"mail" : "Aisha.rasheed@tiidelab.com",
+						"phone" : "09048978797",
+						"status" : "Member"
+					},
+					{
+						"img" : "4.png",
+						"fullName" : "Adebiyi Rotimi",
+						"mail" : "Adebiyi.rotimi@tiidelab.com",
+						"phone" : "09747475894",
+						"status" : "Team Lead"
+					},
+					{
+						"img" : "5.png",
+						"fullName" : "Opaluwa Aisha",
+						"mail" : "Opaluwa.aisha@tiidelab.com",
+						"phone" : "06464748574",
+						"status" : "Member"
+					}
+				];
+				//This gives room for the data to be accessible from any browser in any device (Apart from Internet Explorer)
+				localStorage.setItem("fellows", JSON.stringify(fellows)); //Stores the data in the Local Storage
+				fellows = JSON.parse(localStorage.getItem("fellows")); //gets the data stored in the local storage
+		   }
+
+		function addFellow() { 
+		//adds another fellow's info
+			newFellow = {
+				"img" : document.getElementById("img").value,
+				"fullName" : document.getElementById("fullName").value,
+				"mail" : document.getElementById("mail").value,
+				"phone" : document.getElementById("phone").value,
+				"status" : document.getElementById("status").value
+			}
+			fellows.push(newFellow); 
+			localStorage.setItem("fellows", JSON.stringify(fellows));
+			msg = "New Information Added \nClick OK to Continue";  //alert success message
+			displayInfo(msg); //displays the updated info
+		}
+
+		function editFellow(fellowId) { //set the pop-out form to Edit Info
+			openForm("Edit", fellowId);
+		}
+
+		function editFellowDetails(fellowId) { //edit fellow's info
+				fellows[fellowId] = {	
+				"img" : document.getElementById("img").value,
+				"fullName" : document.getElementById("fullName").value,
+				"mail" : document.getElementById("mail").value,
+				"phone" : document.getElementById("phone").value,
+				"status" : document.getElementById("status").value
+			}
+				localStorage.setItem("fellows", JSON.stringify(fellows));
+				msg = "New Information Updated \nClick OK to Continue"; //alert success message
+				displayInfo(msg); //displays the updated info
+
+			}
+
+		function deleteFellow(fellowId) { //delete fellow
+			con = confirm(`Are you sure you want to delete ${fellows[fellowId].fullName}?`)
+			if (con == true) {
+				fellows.splice(fellowId, 1);
+				localStorage.setItem("fellows", JSON.stringify(fellows));
+				msg = "Fellow Deleted \nClick OK to Continue"; //alert success message
+				displayInfo(msg); //displays the updated info
+
+			}
+		}
+
+		function displayForm(parms, id) { //Sets the type of from to display; add form or edit form
+			if(parms == "Add") { //Form to add new user
+				formContent = `<div class="form-popup" id="myForm">
+				  <form class="form-container" id="fellow" onSubmit="addFellow();">
+					<h3 align="center">ADD A NEW FELLOW</h3>
+
+					<label for="img"><b>Profile Picture</b></label> <input type="text" id="img" placeholder="Enter Profile Picture URL" required>
+					<label for="fullName"><b>Full Name</b></label><input type="text" id="fullName" value="" placeholder="Enter Full name" required>
+					<label for="email"><b>Email</b></label> <input type="text" id="mail" placeholder="Enter Email" required>
+					<label for="status"><b>Status</b></label><br>
+					<select id="status" form="fellow">
+						<option value="Member">Member</option>
+						<option value="Team Lead">Team Lead</option>
+					</select>
+					<br>
+					<label for="phone"><b>Phone Number</b></label><input type="text" id="phone" placeholder="Enter Phone Number" required>
+
+					<button type="submit" class="btn">Add Fellow</button>
+					<button type="button" class="btn cancel" onclick="closeForm();">Close</button>
+				  </form></div>`;
+			}
+			else  { //Form to Edit user
+				fellowId = id; //assign the fellow ID
+				formContent = `<div class="form-popup" id="myForm">
+					<form class="form-container" id="fellow" onSubmit="editFellowDetails(${fellowId});">
+					<h3 align="center">EDIT FELLOW</h3>
+
+					<label for="img"><b>Profile Picture</b></label> <input type="text" id="img" value="${fellows[fellowId].img}" placeholder="${fellows[fellowId].img}">
+					<label for="fullName"><b>Full Name</b></label><input type="text" id="fullName" value="${fellows[fellowId].fullName}" placeholder="${fellows[fellowId].fullName}">
+					<label for="email"><b>Email</b></label> <input type="text" id="mail" value="${fellows[fellowId].mail}" placeholder="${fellows[fellowId].mail}" >
+					<label for="status"><b>Status</b></label><br>
+					<select id="status" form="fellow">`
+						if(fellows[fellowId].status == "Member") { 
+							formContent += `<option value="Member" selected>Member</option><option value="Team Lead">Team Lead</option>` } else {
+							formContent += `<option value="Member">Member</option><option value="Team Lead" selected>Team Lead</option>` }
+				formContent += `</select>
+					<br>
+					<label for="phone"><b>Phone Number</b></label><input type="text" id="phone" value="${fellows[fellowId].phone}" placeholder="${fellows[fellowId].phone}">
+
+					<button type="submit" class="btn">Edit Fellow</button>
+					<button type="button" class="btn cancel" onclick="closeForm()">Close</button>
+					</form></div>`
+			}
+			document.getElementById("form-content").innerHTML = formContent; //updates the form content
+		}
+
+		function displayType(args) { //Select Display Type (All, Members Only, Team Lead Only)
+			displayInfo(null, args)
+		}
+
+		function displayInfo(msg, display) { //Displays the Info
+			if(display == "member") { //if members only selected
+				//displays only members info
+				content = "";
+				for(j=0; j < fellows.length; j++) {		
+					if(fellows[j].status != "Member") { 
+						continue;
+					}
+					else {
+						content += 
+						`<div class="fellows">
+							<div class="fellowsImg"><img src="${fellows[j].img}"></div>
+							<div class="fellowsContent">
+							<strong>${fellows[j].fullName}</strong><br>
+							<em>${fellows[j].mail}</em><br>
+							${fellows[j].phone}<br>
+							${fellows[j].status}<br>
+							<button onClick="editFellow(${j});" class="yellow">Edit User</button> &nbsp; <button onClick="deleteFellow(${j});" class="red">Delete User</button>
+						</div>
+					</div>`;
+					}
+				}
+			}
+			else if (display == "teamLead") { //if team leads selected
+				content = "";
+				//displays only team leads info
+				for(j=0; j < fellows.length; j++) {		
+					if(fellows[j].status != "Team Lead") { 
+						continue;
+					}
+					else {
+						content += 
+						`<div class="fellows">
+							<div class="fellowsImg"><img src="${fellows[j].img}"></div>
+							<div class="fellowsContent">
+							<strong>${fellows[j].fullName}</strong><br>
+							<em>${fellows[j].mail}</em><br>
+							${fellows[j].phone}<br>
+							${fellows[j].status}<br>
+							<button onClick="editFellow(${j});" class="yellow">Edit User</button> &nbsp; <button onClick="deleteFellow(${j});" class="red">Delete User</button>
+						</div>
+					</div>`;
+					}
+			   }			 	
+			}
+			else { // for all fellows
+				content = "";
+				//displays the all fellows info
+				for(j=0; j < fellows.length; j++) {		
+					content += 
+						`<div class="fellows">
+							<div class="fellowsImg"><img src="${fellows[j].img}"></div>
+							<div class="fellowsContent">
+							<strong>${fellows[j].fullName}</strong><br>
+							<em>${fellows[j].mail}</em><br>
+							${fellows[j].phone}<br>
+							${fellows[j].status}<br>
+							<button onClick="editFellow(${j});" class="yellow">Edit User</button> &nbsp; <button onClick="deleteFellow(${j});" class="red">Delete User</button>
+						</div>
+					</div>`;
+					}		
+			}
+			document.getElementById("content").innerHTML = content; //Displays the Info
+			if(msg != null) { 
+				alert(msg); //Alert a success message
+			}
+		}
+
+	displayInfo(); //Display initial data
+
+
+	function openForm(formType, fellowId) { //To Pop-out the Form
+		displayForm(formType, fellowId);
+		document.getElementById("myForm").style.display = "block";
+	}
+
+	function closeForm() { // To Close the Form
+	  document.getElementById("myForm").style.display = "none";
+	}
+		
+	/////////////////////////////////FAKUNLE MOBOLAJI JOHNSON/////////////////////////////////
+		
+	</script>
+
+</body>
+</html>
